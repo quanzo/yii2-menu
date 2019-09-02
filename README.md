@@ -80,3 +80,10 @@ How use
     'activeCssClass' => 'current',
 ]);?></div>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Picture
+-------
+
+![List](pic/menu_1.png)
+
+![Update or add form](pic/menu_2.png)
