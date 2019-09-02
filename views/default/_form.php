@@ -20,7 +20,7 @@ $module = $this->context->module;
 if ($allowAutocomplete) {
     // расшифровка некоторых полей модели
     if ($pp = $model->parent) {
-        $parentTitle = $pp->post_title;
+        $parentTitle = $pp->name;
     } else {
         $parentTitle = '';
     }
@@ -88,6 +88,7 @@ if ($allowAutocomplete) {
     ?>
 
     <?= $form->field($model, 'permission')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'route')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'user_id')->textInput() ?>
 

@@ -63,6 +63,64 @@ $this->params['breadcrumbs'][] = $this->title;
         ['class' => 'yii\grid\ActionColumn'],
     ],
 ]);?>
+<p>С отмеченными:
+<div><?= Html::submitButton(
+        Yii::t('module/menu', 'Delete'),
+        [
+            'data' => [
+                'confirm' => Yii::t('module/menu', 'Are you sure?')
+            ],
+            'class' => 'btn btn-danger',
+            'id'=>'btn-delete'
+        ]);?>
+</div>
+<div>
+<?php
+echo \yii\helpers\Html::input('text', 'new-menu');
+echo Html::submitButton(
+    Yii::t('module/menu', 'Change menu'),
+    [
+        'data' => [
+            'confirm' => Yii::t('module/menu', 'Are you sure?'),
+        ],
+        'class' => 'btn btn-danger',
+        'id' => 'btn-set-menu',
+    ]);
+?>
+</div>
     <?php $form::end();?>
+    <?php $this->registerJs('
+    function checked() {
+        var checkers = document.querySelectorAll("#' . $formId . ' input[type=checkbox][name=\'sel[]\']");
+		var checked = false;
+		for (var i=0; i<checkers.length; i++) {
+			if (checkers[i].checked) {
+				checked = true;
+				break;
+			}
+		}
+        return checked;
+    }
+    document.getElementById("btn-delete").onclick = function (){
+		checked = checked();
+		if (checked) {
+			document.querySelector("#' . $formId . ' input[name=operation]").value="delete";
+			return true;
+		} else {
+			alert("' . Yii::t('module/menu', 'Nothing is selected.') . '");
+		}
+		return false;
+    };
+    document.getElementById("btn-set-menu").onclick = function (){
+		checked = checked();
+		if (checked) {
+			document.querySelector("#' . $formId . ' input[name=operation]").value="set-menu";
+			return true;
+		} else {
+			alert("' . Yii::t('module/menu', 'Nothing is selected.') . '");
+		}
+		return false;
+    };
+');?>
     <?php Pjax::end();?>
 </div>

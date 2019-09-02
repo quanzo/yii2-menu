@@ -1,0 +1,29 @@
+{
+    "name": "quanzo/yii2-menu",
+    "description": "Organize many menus for site. Module for Yii2",
+    "authors": [
+        {
+            "name": "Quanzo",
+            "email": "iquanzo@gmail.com"
+        }
+    ],
+    "keywords": [
+        "yii2",
+		"menu",
+		"yii menu"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.0",
+        "yiisoft/yii2": "~2.0.0",
+		"quanzo/yii2-auth": "*",
+		"quanzo/x51-functions": "*",
+		"yiisoft/yii2-jui": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "x51\\yii2\\modules\\blocks\\": ""
+        }
+    }
+}

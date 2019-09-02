@@ -11,10 +11,10 @@ class MenuHelper
         $m = static::$modelName;
         $query = $m::find()->where(
             [
-                //['>', 'active', 0],
-                'menu' => $menu,
+                '>', 'active', 0                
             ]
-        )->orderBy([
+        )->andWhere(['menu' => $menu])
+        ->orderBy([
             'sort' => static::$sort
         ])->indexBy($m::primaryKey());
 
@@ -24,12 +24,12 @@ class MenuHelper
             $arInMenu = [];
             // первый уровень меню - элементы у которых parent_id указывает на элемент вне списка
             foreach ($arResult as $id => $item) {
-                if (!isset($arResult[$item['parent_id']])) {
+                if (!isset($arResult[$item['parent_id']]) && $item->canView) {
                     $arMenu[$id] = static::formMenuArray($item);
                     $arInMenu[$id] = true;
                 }
             }
-            // заполняем меню
+            // заполняем все остальные уровни меню. начинаем перебор с первого уровня. setItems рекурсивно соберет всю ветку
             foreach ($arMenu as $id => &$menu) {
                 static::setItems($menu, $arResult, $arInMenu);
             }
@@ -42,7 +42,8 @@ class MenuHelper
         foreach ($arResult as $id => &$item) {
             if (
                 $item['parent_id'] == $arMenuElement['id'] &&
-                !isset($arInArray[$item['id']])
+                !isset($arInArray[$item['id']]) &&
+                $item->canView
             ) {
                 if (empty($arMenuElement['items'])) {
                     $arMenuElement['items'] = [];

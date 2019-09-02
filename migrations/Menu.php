@@ -34,6 +34,7 @@ class Menu extends Migration
             'url_params' => $this->string(150)->defaultValue(''),
             'active' => $this->tinyInteger()->defaultValue(1),
             'permission' => $this->string(150)->defaultValue(''),
+            'route' => $this->string(150)->defaultValue(''),
             'user_id' => $this->integer()->defaultValue(0),
         ];
         $this->createTable('{{%' . $this->baseTableName . '}}', $tblPosts, $tableOptions);

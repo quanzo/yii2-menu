@@ -3,6 +3,10 @@
 namespace x51\yii2\modules\menu\models;
 
 use Yii;
+use \x51\functions\funcString;
+use \x51\yii2\modules\auth\classes\RoleRule;
+
+
 
 /**
  * This is the model class for table "{{%sitemenu}}".
@@ -36,7 +40,7 @@ class Menu extends \yii\db\ActiveRecord
             [['menu', 'name'], 'required'],
             [['sort', 'active', 'user_id', 'id', 'parent_id'], 'integer'],
             [['menu', 'name'], 'string', 'max' => 75],
-            [['url_path', 'url_params', 'permission'], 'string', 'max' => 150],
+            [['url_path', 'url_params', 'permission', 'route'], 'string', 'max' => 150],
             //['parent_id', 'exist', 'targetAttribute'=>'id']
             
         ];
@@ -56,7 +60,8 @@ class Menu extends \yii\db\ActiveRecord
             'url_path' => Yii::t('module/menu', 'Url Path'),
             'url_params' => Yii::t('module/menu', 'Url Params'),
             'active' => Yii::t('module/menu', 'Active'),
-            'permission' => Yii::t('module/menu', 'Permission'),
+            'permission' => Yii::t('module/menu', 'Only for permissions'),
+            'route' => Yii::t('module/menu', 'Only for routes'),
             'user_id' => Yii::t('module/menu', 'User ID'),
             /*'id' => 'ID',
             'menu' => 'Menu',
@@ -83,4 +88,35 @@ class Menu extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Menu::className(), ['id' => 'parent_id']);
     }
+
+    public function getCanView()
+    {
+        $result = true;
+        if (!empty($this->permission)) {
+            //$arPerm = explode(',', $this->permission);
+			$arPerm = funcString::explode([',', ' '], $this->permission, true);
+            array_walk($arPerm, function (&$val, $key) {
+                $val = trim($val);
+            });
+            if (empty(RoleRule::choosePermissions($arPerm)) && empty(RoleRule::chooseRoles($arPerm))) {
+                $result = false;
+            }
+        }
+
+        if ($result && !empty($this->route)) {
+            $currRoute = \Yii::$app->controller->route;
+            $arRoutesView = funcString::explode([',', ' '], $this->route, true);
+            if ($arRoutesView) {
+                $match = false;
+                foreach ($arRoutesView as $path) {
+                    $match = fnmatch($path, $currRoute);
+                    if ($match) {
+                        break;
+                    }
+                }
+                $result = $match;
+            }
+        }
+        return $result;
+    } // end getCanView
 }

@@ -2,13 +2,13 @@
 
 namespace x51\yii2\modules\menu\controllers;
 
-use Yii;
 use x51\yii2\modules\menu\models\Menu;
 use x51\yii2\modules\menu\models\MenuSearch;
+use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use \yii\filters\AccessControl;
+use \yii\base\DynamicModel;
 
 
 /**
@@ -29,18 +29,18 @@ class DefaultController extends Controller
                 ],
             ],
             /*'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['menu_manage'],
-                    ],
-                    [
-                        'allow' => false,
-                        'roles' => ['?'],
-                    ],
-                ],
-            ],*/
+        'class' => AccessControl::className(),
+        'rules' => [
+        [
+        'allow' => true,
+        'roles' => ['menu_manage'],
+        ],
+        [
+        'allow' => false,
+        'roles' => ['?'],
+        ],
+        ],
+        ],*/
         ];
     }
 
@@ -52,6 +52,46 @@ class DefaultController extends Controller
     {
         $searchModel = new MenuSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        // групповая операция
+        $request = \Yii::$app->request;
+        if ($request->post('operation', false) && $request->post('sel', false)) {
+            $pmKey = Menu::primaryKey();
+            if (is_array($pmKey)) {
+                $pmKey = current($pmKey);
+            }
+            $op = $request->post('operation');
+            $sel = $request->post('sel', false);
+            foreach ($sel as &$id) {
+                $id = intval($id);
+            }
+            switch ($op) {
+                case 'set-menu':{
+                        // создаем динамическую модель с одним полем
+                        $validateModel = new DynamicModel([
+                            'menu' => $request->post('new-menu', ''),
+                        ]);
+                        // правила валидации и валидация
+                        $validateModel->addRule(
+                            'menu', 'string', ['max' => 75]
+                        )->addRule(
+                            'menu', 'safe'
+                        )->validate();
+
+                        if (!$validateModel->hasErrors()) { // если нет ошибок - вносим изменения
+                            Menu::updateAll(
+                                ['menu' => $validateModel->menu],
+                                [$pmKey => $sel]
+                            );
+                        }
+                        break;
+                    }
+                case 'delete':{
+                        Menu::deleteAll([$pmKey => $sel]);
+                        break;
+                    }
+            }
+        }
 
         return $this->render('index', [
             'searchModel' => $searchModel,
